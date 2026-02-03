@@ -32,5 +32,16 @@ services:
     ports:
       - "8000:8000"
 
+  worker:
+    build: .
+    command: ["celery", "-A", "app.celery_app:celery_app", "worker", "--loglevel=INFO"]
+    environment:
+      DATABASE_URL: postgresql+psycopg2://tasks:tasks@db:5432/tasks
+      CELERY_BROKER_URL: amqp://tasker:tasker@rabbit:5672//
+      CELERY_RESULT_BACKEND: rpc://
+    depends_on:
+      - db
+      - rabbit
+
 volumes:
   db_data:

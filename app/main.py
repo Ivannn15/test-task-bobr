@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.db import get_db, init_db
+from app.tasks import process_task
 
 app = FastAPI(title="Async Task Service")
 
@@ -18,5 +19,7 @@ def create_task(payload_in: schemas.TaskCreate, db: Session = Depends(get_db)):
     db.add(task)
     db.commit()
     db.refresh(task)
+
+    process_task.delay(str(task.id))
 
     return schemas.TaskCreateResponse(task_id=str(task.id))
