@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: tasks
+      POSTGRES_USER: tasks
+      POSTGRES_PASSWORD: tasks
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  rabbit:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: tasker
+      RABBITMQ_DEFAULT_PASS: tasker
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  backend:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg2://tasks:tasks@db:5432/tasks
+      CELERY_BROKER_URL: amqp://tasker:tasker@rabbit:5672//
+    depends_on:
+      - db
+      - rabbit
+    ports:
+      - "8000:8000"
+
+volumes:
+  db_data:
