@@ -16,6 +16,8 @@ celery_app = Celery(
 celery_app.conf.update(
     task_acks_late=True,
     worker_prefetch_multiplier=1,
+    task_soft_time_limit=15,
+    task_time_limit=20,
     task_serializer="json",
     accept_content=["json"],
     result_serializer="json",
